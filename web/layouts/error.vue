@@ -8,7 +8,7 @@
 
             <v-spacer class="my-10" />
 
-            <div class="text-h2">{{ message }}</div>
+            <div class="text-h5">{{ message }}</div>
           </v-col>
         </v-row>
       </v-container>
