@@ -5,6 +5,7 @@ import * as admin from 'firebase-admin';
 
 const API_KEY = 'AIzaSyDq11Zs7Y3qp8vD2QU8osJ1kXgcmJVdbdU';
 const SEARCH_API = 'https://www.googleapis.com/youtube/v3/search';
+const DEFAULT_URL = 'https://yg-2021.web.app';
 
 admin.initializeApp(functions.config().firebase);
 
@@ -43,7 +44,7 @@ const insertNewVideos = async (linkId: string) => {
         maxResults: '50',
         part: 'snippet',
         order: 'date',
-        q: encodeURIComponent(query),
+        q: query,
         type: 'video',
         videoEmbeddable: 'true'
       }
@@ -201,10 +202,57 @@ export const getVideoId = functions.https.onCall(async (data) => {
 
     videoIdDoc.ref.delete();
 
-    setTimeout(() => checkNewVideos(linkId), 0);
+    checkNewVideos(linkId);
 
     return videoId;
   } catch (error) {
     throw new functions.https.HttpsError('invalid-argument', error.message);
+  }
+});
+
+export const requestVideoId = functions.https.onRequest(async (req, res) => {
+  if (!req.url.match(/^\/[a-z0-9-]+?$/)) {
+    return res.redirect(DEFAULT_URL);
+  }
+
+  const link = req.url.slice(1).trim();
+
+  if (!link) {
+    return res.redirect(DEFAULT_URL);
+  }
+
+  try {
+    const linkDocs = await db
+      .collection('links')
+      .where('link', '==', link)
+      .limit(1)
+      .get();
+
+    if (!linkDocs.size) {
+      return res.redirect(DEFAULT_URL);
+    }
+
+    const linkId = linkDocs.docs[0].id;
+
+    const videoIdDocs = await db
+      .collection('videos')
+      .doc(linkId)
+      .collection('ids')
+      .limit(1)
+      .get();
+
+    if (!videoIdDocs.size) {
+      return res.redirect(DEFAULT_URL);
+    }
+
+    const videoIdDoc = videoIdDocs.docs[0];
+    const videoId = videoIdDoc.id;
+
+    videoIdDoc.ref.delete();
+    checkNewVideos(linkId);
+
+    res.redirect(`https://youtu.be/${videoId}`);
+  } catch (error) {
+    return res.redirect(DEFAULT_URL);
   }
 });

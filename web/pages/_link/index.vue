@@ -42,10 +42,11 @@ export default class Link extends Vue {
 
   created() {
     this.link = this.$route.params.link.trim().toLowerCase();
+    window.location.href = `https://us-central1-yg-2021.cloudfunctions.net/requestVideoId/${this.link}`;
   }
 
   mounted() {
-    this.fetchUrl();
+    // this.fetchUrl();
   }
 
   async fetchUrl() {
