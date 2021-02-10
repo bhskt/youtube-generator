@@ -38,7 +38,7 @@
             <v-col cols="auto">Videos</v-col>
 
             <v-col class="font-weight-bold white--text" cols="auto">
-              {{ link.videos ? link.videos : '...' }}
+              {{ link.videos ? link.videos : link.videos === 0 ? '0' : '...' }}
             </v-col>
           </v-row>
 

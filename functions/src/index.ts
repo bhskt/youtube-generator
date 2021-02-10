@@ -180,6 +180,10 @@ export const getVideoId = functions.https.onCall(async (data) => {
       .limit(1)
       .get();
 
+    if (videoIdDocs.size < 5) {
+      setTimeout(() => insertNewVideos(linkId), 0);
+    }
+
     if (!videoIdDocs.size) {
       throw new Error('No Videos Found');
     }
