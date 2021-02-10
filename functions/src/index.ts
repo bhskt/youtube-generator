@@ -35,7 +35,7 @@ const insertNewVideos = async (linkId: string) => {
   }
 
   const keywords = linkDoc.docs[0].data().keywords as string[];
-  const query = keywords.join('|');
+  const query = keywords.join(' ');
 
   const response = (
     await axios.get(SEARCH_API, {
