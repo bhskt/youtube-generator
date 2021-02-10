@@ -24,7 +24,7 @@
 import { Component, Vue } from 'nuxt-property-decorator';
 
 @Component
-export default class Home extends Vue {
+export default class Link extends Vue {
   link = '';
   message = 'Loading...';
   url = '';
