@@ -21,13 +21,6 @@
                 @click="handleClick"
                 >{{ url }}</v-btn
               >
-              <div v-if="timer > 0" class="text-caption">
-                Redirecting In {{ timer }} Seconds(s)...
-              </div>
-
-              <div v-else-if="timer === 0" class="text-caption">
-                Redirecting...
-              </div>
             </div>
 
             <div v-else class="text-h5">{{ message }}</div>
@@ -44,48 +37,35 @@ import { Component, Vue } from 'nuxt-property-decorator';
 @Component
 export default class Link extends Vue {
   link = '';
-  message = 'Loading...';
+  message = 'Finding...';
   url = '';
-  timer = 5;
 
   created() {
     this.link = this.$route.params.link.trim().toLowerCase();
   }
 
-  async mounted() {
+  mounted() {
+    this.fetchUrl();
+  }
+
+  async fetchUrl() {
     const getVideoId = this.$fire.functions.httpsCallable('getVideoId');
 
     try {
       const videoId = (await getVideoId({ link: this.link })).data;
 
       this.url = `https://youtu.be/${videoId}`;
-      this.triggerTimer();
-
-      setTimeout(() => {
-        const vueEl = this.$refs.button as Vue;
-        const el = vueEl.$el as HTMLAnchorElement;
-
-        el.click();
-      }, 0);
     } catch (error) {
       if (error.message) this.message = error.message;
       else this.message = 'An Error Occurred, Please Try Again Later.';
     }
   }
 
-  handleClick(event: MouseEvent) {
-    if (event.isTrusted) this.timer = -1;
-  }
+  handleClick() {
+    this.message = 'Finding...';
+    this.url = '';
 
-  triggerTimer() {
-    setTimeout(() => {
-      if (this.timer === 0) window.location.href = this.url;
-      else if (this.timer < 0) return false;
-      else {
-        this.timer--;
-        this.triggerTimer();
-      }
-    }, 1000);
+    this.fetchUrl();
   }
 }
 </script>
