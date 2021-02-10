@@ -24,12 +24,13 @@ export default {
 
   buildModules: [
     '@nuxtjs/google-fonts',
+    '@nuxtjs/moment',
     '@nuxtjs/stylelint-module',
     '@nuxt/typescript-build',
     '@nuxtjs/vuetify'
   ],
 
-  modules: ['@nuxtjs/axios', 'cookie-universal-nuxt'],
+  modules: ['@nuxtjs/axios', '@nuxtjs/firebase', 'cookie-universal-nuxt'],
 
   vuetify: {
     customVariables: ['~/assets/variables.scss'],
@@ -54,6 +55,27 @@ export default {
   googleFonts: {
     families: {
       Lato: true
+    }
+  },
+
+  firebase: {
+    config: {
+      apiKey: 'AIzaSyCQewiwRdARPPQyobDRw8VWXPZw615nTJo',
+      authDomain: 'yg-2021.firebaseapp.com',
+      projectId: 'yg-2021',
+      storageBucket: 'yg-2021.appspot.com',
+      messagingSenderId: '398704981477',
+      appId: '1:398704981477:web:f26c1cfa77d67de3a66b0c'
+    },
+    functions: {
+      location: 'us-central1',
+      emulatorPort: 5001,
+      emulatorHost: 'http://localhost'
+    },
+    services: {
+      auth: true,
+      firestore: true,
+      functions: true
     }
   }
 };

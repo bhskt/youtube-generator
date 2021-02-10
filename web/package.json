@@ -14,8 +14,11 @@
   "dependencies": {
     "@nuxt/typescript-runtime": "^2.0.0",
     "@nuxtjs/axios": "^5.12.2",
+    "@nuxtjs/firebase": "^7.4.1",
+    "@nuxtjs/moment": "^1.6.1",
     "cookie-universal-nuxt": "^2.1.4",
     "core-js": "^3.6.5",
+    "firebase": "^8.2.6",
     "nuxt": "^2.14.6",
     "nuxt-property-decorator": "^2.8.8"
   },

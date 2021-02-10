@@ -20,6 +20,8 @@
       "@nuxt/types",
       "@nuxt/vue-app",
       "@nuxtjs/axios/types",
+      "@nuxtjs/firebase",
+      "@nuxtjs/moment",
       "@nuxtjs/vuetify",
       "cookie-universal-nuxt/types"
     ]
