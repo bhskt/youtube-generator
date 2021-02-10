@@ -34,38 +34,55 @@ const insertNewVideos = async (linkId: string) => {
     throw new Error(`Link ${linkId} Not Found`);
   }
 
+  const batch = db.batch();
   const keywords = linkDoc.docs[0].data().keywords as string[];
   const query = keywords.join(' ');
 
-  const response = (
-    await axios.get(SEARCH_API, {
-      params: {
-        key: API_KEY,
-        maxResults: '50',
-        part: 'snippet',
-        order: 'date',
-        q: query,
-        type: 'video',
-        videoEmbeddable: 'true'
-      }
-    })
-  ).data;
+  let loop = 4;
+  let nextPageToken;
 
-  await db
-    .collection('videos')
-    .doc(linkId)
-    .set({ lastUpdatedAt: Math.floor(Date.now() / 1000) });
+  do {
+    loop--;
 
-  const videoIdsRef = db.collection('videos').doc(linkId).collection('ids');
-  const batch = db.batch();
-
-  for (const item of response.items) {
     try {
-      batch.set(videoIdsRef.doc(item.id.videoId), item.id);
+      const response: {
+        nextPageToken: string;
+        items: { id: { videoId: string } }[];
+      } = (
+        await axios.get(SEARCH_API, {
+          params: {
+            key: API_KEY,
+            maxResults: '50',
+            part: 'snippet',
+            order: 'date',
+            q: query,
+            type: 'video',
+            videoEmbeddable: 'true',
+            pageToken: nextPageToken
+          }
+        })
+      ).data;
+
+      nextPageToken = response.nextPageToken;
+
+      await db
+        .collection('videos')
+        .doc(linkId)
+        .set({ lastUpdatedAt: Math.floor(Date.now() / 1000) });
+
+      const videoIdsRef = db.collection('videos').doc(linkId).collection('ids');
+
+      for (const item of response.items) {
+        try {
+          batch.set(videoIdsRef.doc(item.id.videoId), item.id);
+        } catch (error) {
+          // Ignore
+        }
+      }
     } catch (error) {
-      // Ignore
+      console.log(error);
     }
-  }
+  } while (loop && nextPageToken);
 
   try {
     await batch.commit();
