@@ -10,6 +10,18 @@ admin.initializeApp(functions.config().firebase);
 
 const db = admin.firestore();
 
+const checkNewVideos = async (linkId: string) => {
+  const videoIdDocs = await db
+    .collection('videos')
+    .doc(linkId)
+    .collection('ids')
+    .get();
+
+  if (videoIdDocs.size < 5) {
+    insertNewVideos(linkId);
+  }
+};
+
 const insertNewVideos = async (linkId: string) => {
   const linkDoc = await db
     .collection('links')
@@ -180,10 +192,6 @@ export const getVideoId = functions.https.onCall(async (data) => {
       .limit(1)
       .get();
 
-    if (videoIdDocs.size < 5) {
-      setTimeout(() => insertNewVideos(linkId), 0);
-    }
-
     if (!videoIdDocs.size) {
       throw new Error('No Videos Found');
     }
@@ -192,6 +200,8 @@ export const getVideoId = functions.https.onCall(async (data) => {
     const videoId = videoIdDoc.id;
 
     videoIdDoc.ref.delete();
+
+    setTimeout(() => checkNewVideos(linkId), 0);
 
     return videoId;
   } catch (error) {
